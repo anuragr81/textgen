@@ -1,5 +1,4 @@
 
-
 all:
 	flex lex_input.c
 	yacc -d yacc_input.c
