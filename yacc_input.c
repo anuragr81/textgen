@@ -26,8 +26,10 @@ struct Message {
 
 %token INTEGER
 %token<sValue> NAME
-%type<sValue> subject
-%type<sValue> object
+%type<sValue> definition
+
+
+%token ATOMS
 
 %token AND
 %token OR
@@ -37,6 +39,10 @@ struct Message {
 %token MULT
 %token DIV
 %token EQUALS
+%token COLON
+%token COMMA
+%token CURLYBRACES_OPEN
+%token CURLYBRACES_CLOSED
 
 %token RES
 %token LT
@@ -50,9 +56,12 @@ struct Message {
 
 %%
 
-subject: NAME { $$ = $1; }
-object : NAME { $$ = $1; }
+statement : definition | atoms 
 
+definition: CURLYBRACES_OPEN NAME CURLYBRACES_CLOSED { $$=$2; printf("<!--definition -->");} 
+
+atoms: ATOMS CURLYBRACES_OPEN atoms_list CURLYBRACES_CLOSED
+atoms_list : atoms_list COMMA NAME {printf ("\"%s\"",$3);} | NAME { printf("\"%s\"",$1);}
 
 %%
 
@@ -83,7 +92,7 @@ int main(int argc,char * argv[])
     else
     {
         printf("\n<xml>");
-        printf("<!--Input: %s-->\n",argv[1]);
+        printf("<!--Input: \"%s\"-->\n",argv[1]);
     }
     yy_scan_string(argv[1]);
     yyparse();
