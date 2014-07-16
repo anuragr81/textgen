@@ -6,22 +6,17 @@
 
 %%
 
-is { return VERB_IS_PRES;}
-were { return VERB_IS_PAST; }
-do { return VERB_DO_SINGLE_PRES;}
-did { return VERB_DO_SINGLE_PAST;}
+\-\> { return RES ; }
+\= { return EQUALS ; } 
+\< { return LT ;}
+\> { return GT ;}
 
-where|Where { return WHERE;}
-[A-Za-z]+       { yylval.sValue=(char*)malloc(sizeof(char)*strlen(yytext)); strcpy(yylval.sValue,yytext); return NAME; }
+OR { return OR;}
+AND { return AND;}
+NOT { return NOT;}
 
-\(          { return BRACKET_OPEN; }
-\)          { return BRACKET_CLOSE; }
 
-[\,]        { return COMMA; }
-[ \t]       { return BLANK; }       /* skip whitespace */
-[\.]        { return STOP; }
-
-[\;]       { return SEMICOLON; }
+[A-Za-z_]+       { yylval.sValue=(char*)malloc(sizeof(char)*strlen(yytext)); strcpy(yylval.sValue,yytext); return NAME; }
 
 .           yyerror("Unknown character");
 
