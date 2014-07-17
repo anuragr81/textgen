@@ -26,10 +26,12 @@ struct Message {
 
 %token INTEGER
 %token<sValue> NAME
-%type<sValue> definition
+%type<sValue> atom
+%type<sValue> userdef
 
 
 %token ATOMS
+%token WHAT
 
 %token AND
 %token OR
@@ -45,7 +47,9 @@ struct Message {
 %token CURLYBRACES_CLOSED
 
 %token RES
+%nonassoc RES
 %token LT
+%nonassoc LT
 %token GT
 
 
@@ -56,14 +60,27 @@ struct Message {
 
 %%
 
-statement : definition | atoms 
+statement : definition | atoms | result | question
 
-definition: CURLYBRACES_OPEN NAME CURLYBRACES_CLOSED { $$=$2; printf("<!--definition -->");} 
+result: atom RES atom  { printf("atom:%s results in atom:%s",$1,$3); } | userdef RES userdef { printf("%s results in %s",$1,$3); } | userdef RES atom { printf("%s results in %s",$1,$3); } | atom RES userdef { printf("%s results in %s",$1,$3); }
+
+question: userdef RES WHAT {printf("what does %s lead to",$1); } | atom RES WHAT {printf("what does atom:%s lead to",$1);}  // question creates conflicts in the syntax
+
+userdef :  CURLYBRACES_OPEN NAME CURLYBRACES_CLOSED { $$=$2;}
+
+definition: 
+//userdef COLON condition { printf("<!--definition -->");}   |
+  userdef : result {} 
+
+//condition: NAME LT NAME
+
+atom : NAME { $$=$1;}
 
 atoms: ATOMS CURLYBRACES_OPEN atoms_list CURLYBRACES_CLOSED
-atoms_list : atoms_list COMMA NAME {printf ("\"%s\"",$3);} | NAME { printf("\"%s\"",$1);}
+atoms_list : atoms_list COMMA atom {printf ("\"%s\"",$3);} | atom { printf("\"%s\"",$1);}
 
 %%
+
 
 // TODO: -- Active vs Passive voice
 

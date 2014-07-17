@@ -1,7 +1,7 @@
 atoms{market,worry,uncertainty,thinking,inflation,threshold}
 {deflation}: sub(inflation) < threshold
-rate-cuts e-> ?
-crisis e-> uncertainty
+rate-cuts -> ?
+crisis -> uncertainty
 thinking: quant -> {quant_thoughts}
 {quant_thoughts} -> {nodeflationworry}
 {market-worry} : market -> worry 

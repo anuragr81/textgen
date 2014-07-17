@@ -12,7 +12,7 @@
 \> { return GT ;}
 \: { return COLON;} 
 \, { return COMMA;} 
-
+\? {return WHAT;}
 atoms { return ATOMS;} 
 
 sub { return SUB;}
