@@ -1,29 +1,39 @@
 import sys
+import logging
+
+loglevel=logging.DEBUG
+LOGGER_NAME="parser"
+
+FORMAT='%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT);
+logger = logging.getLogger(LOGGER_NAME);
+logger.setLevel(loglevel)
+
 from pyparsing import Word,alphas,OneOrMore,Optional
 
 kt = {'contexts':{},'globals':{}}
 
 def print_single_line(s,l,t):
-    print "print_single_line-",t
+    logger.debug("print_single_line-"+str(t))
     kt['globals'][t[0]]=t[2]
 
 def start_context(s,l,t):
-    print "start-context: ",t
+    logger.debug("start-context: "+str(t))
     kt ['contexts'][t[1]]={'attributes':{}}
 
 def update_variable(s,l,t):
-    print "update_variable - t=",t
+    logger.debug("update_variable - t="+str(t))
 
 
 def update_attribute(s,l,t):
-    print "update_attribute - ", t, " kt=",kt
+    logger.debug("update_attribute - "+str(t) +" kt="+str(kt))
     kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
 
 def updateKT(s,location,tokens):
-    print "location=",location, "s=",s, "tokens=",tokens
+    logger.debug("location="+str(location)+ "s="+str(s)+"tokens="+str(tokens))
 
 def print_rvalue(s,l,t):
-    print "rvalue - t=",t
+    logger.debug("rvalue - t="+str(t))
 
 """
 relations of a context's attribute are of types : [ property, supertype/subtype, composition/aggregation, containment/ownership ]
