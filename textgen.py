@@ -7,6 +7,9 @@ def updateKT(s,location,tokens):
         print "location=",location, "s=",s, "tokens=",tokens
 	kt[tokens[0]]=tokens[2:]
 
+def print_rvalue(s,l,t):
+    print "rvalue - t=",t
+
 """
 relations of a context's attribute are of types : [ property, supertype/subtype, composition/aggregation, containment/ownership ]
 """
@@ -27,6 +30,7 @@ freeformText = "freeform"+"("+ OneOrMore(Word(alphas))+")"
 rvalue = freeformText | Word(alphas)
 grammar= variable + "::" + Word(alphas) + "=" + rvalue | variable + "=" + rvalue
 grammar.setParseAction(updateKT)
+rvalue.setParseAction(print_rvalue)
 
 
 if __name__ == "__main__":
