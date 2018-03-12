@@ -30,7 +30,7 @@ def update_attribute(s,l,t):
     kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
 
 def updateKT(s,location,tokens):
-    logger.debug("location="+str(location)+ "s="+str(s)+"tokens="+str(tokens))
+    logger.debug("location="+str(location)+ " s=\""+str(s)+" tokens="+str(tokens))
 
 def print_rvalue(s,l,t):
     logger.debug("rvalue - t="+str(t))
@@ -57,17 +57,16 @@ rvalue                = freeformText | Word(alphas)
 setAttributeValue     = variable + "::" + Word(alphas) + '=' + rvalue 
 setVariableValue      = variable + '=' + rvalue
 
-singleline            = startContext | setAttributeValue | setVariableValue
-line                  = singleline  + ";"
+line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";"
 grammar               = OneOrMore(line)
 
 
 
 setAttributeValue.setParseAction(update_attribute)
 setVariableValue.setParseAction(update_variable)
-singleline.setParseAction(print_single_line)
+line.setParseAction(print_single_line)
 startContext.setParseAction(start_context)
-grammar.setParseAction(updateKT)
+#grammar.setParseAction(updateKT)
 rvalue.setParseAction(print_rvalue)
 
 
