@@ -1,21 +1,26 @@
 import sys
 from pyparsing import Word,alphas,OneOrMore,Optional
 
-kt = {}
+kt = {'contexts':{},'globals':{}}
 
 def print_single_line(s,l,t):
     print "print_single_line-",t
+    kt['globals'][t[0]]=t[2]
 
 def start_context(s,l,t):
     print "start-context: ",t
-    kt ['context'] ={'name': t[1],'attributes':{} }
+    kt ['contexts'][t[1]]={'attributes':{}}
+
+def update_variable(s,l,t):
+    print "update_variable - t=",t
+
 
 def update_attribute(s,l,t):
-    print "update_attribute - ", t
-    kt['context'][t[0]]['attributes'][t[2]]=t[4]
+    print "update_attribute - ", t, " kt=",kt
+    kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
 
 def updateKT(s,location,tokens):
-        print "location=",location, "s=",s, "tokens=",tokens
+    print "location=",location, "s=",s, "tokens=",tokens
 
 def print_rvalue(s,l,t):
     print "rvalue - t=",t
@@ -43,9 +48,13 @@ setAttributeValue     = variable + "::" + Word(alphas) + '=' + rvalue
 setVariableValue      = variable + '=' + rvalue
 
 singleline            = startContext | setAttributeValue | setVariableValue
-grammar               = singleline  + ";" + Optional(singleline)
+line                  = singleline  + ";"
+grammar               = OneOrMore(line)
+
+
 
 setAttributeValue.setParseAction(update_attribute)
+setVariableValue.setParseAction(update_variable)
 singleline.setParseAction(print_single_line)
 startContext.setParseAction(start_context)
 grammar.setParseAction(updateKT)
