@@ -15,14 +15,14 @@ kt = {'contexts':{},'globals':{}}
 
 def print_single_line(s,l,t):
     logger.debug("print_single_line-"+str(t))
-    kt['globals'][t[0]]=t[2]
-
+    
 def start_context(s,l,t):
     logger.debug("start-context: "+str(t))
     kt ['contexts'][t[1]]={'attributes':{}}
 
 def update_variable(s,l,t):
     logger.debug("update_variable - t="+str(t))
+    kt['globals'][t[0]]=t[2]
 
 
 def update_attribute(s,l,t):
@@ -64,9 +64,8 @@ grammar               = OneOrMore(line)
 
 setAttributeValue.setParseAction(update_attribute)
 setVariableValue.setParseAction(update_variable)
-line.setParseAction(print_single_line)
+#line.setParseAction(print_single_line)
 startContext.setParseAction(start_context)
-#grammar.setParseAction(updateKT)
 rvalue.setParseAction(print_rvalue)
 
 
