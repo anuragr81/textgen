@@ -11,7 +11,7 @@ logger.setLevel(loglevel)
 
 from pyparsing import Word,alphas,OneOrMore,Optional
 
-kt = {'contexts':{},'globals':{},'rvalues':[]}
+kt = {'contexts':{},'globals':{},'rvalues':[],'functions':[]}
 
 def print_single_line(s,l,t):
     logger.debug("print_single_line-"+str(t))
@@ -23,8 +23,7 @@ def start_context(s,l,t):
 def update_variable(s,l,t):
     logger.debug("update_variable - t="+str(t))
     kt['globals'][t[0]]=t[2]
-
-
+    
 def update_attribute(s,l,t):
     logger.debug("update_attribute - "+str(t) +" kt="+str(kt))
     kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
@@ -36,6 +35,15 @@ def set_rvalue(s,l,t):
     logger.debug("rvalue - t="+str(t))
     if t[0] not in kt['rvalues']:
         kt['rvalues'].append(t[0])
+
+def set_function(s,l,t):
+	logger.debug("set_function - t"+str(t))
+	if t[0] not in kt['functions']:
+		kt['functions'].append(t[0])
+	variables = [t[i] for i in xrange(2,len(t),2)]
+	
+
+
 
 """
 relations of a context's attribute are of types : [ property, supertype/subtype, composition/aggregation, containment/ownership ]
@@ -58,8 +66,10 @@ freeformText          = "freeform"+"("+ OneOrMore(Word(alphas))+")"
 rvalue                = freeformText | Word(alphas)
 setAttributeValue     = variable + "::" + Word(alphas) + '=' + rvalue 
 setVariableValue      = variable + '=' + rvalue
+argument              = Word(alphas) + Optional(",")
+funcDef               = Word(alphas) + "(" + OneOrMore(argument) + ")"
+line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";"
 
-line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";"
 grammar               = OneOrMore(line)
 
 
@@ -68,7 +78,7 @@ setVariableValue.setParseAction(update_variable)
 #line.setParseAction(print_single_line)
 startContext.setParseAction(start_context)
 rvalue.setParseAction(set_rvalue)
-
+funcDef.setParseAction(set_function)
 
 if __name__ == "__main__":
     # input string
