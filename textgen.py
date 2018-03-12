@@ -1,11 +1,21 @@
 import sys
-from pyparsing import Word,alphas,OneOrMore
+from pyparsing import Word,alphas,OneOrMore,Optional
 
 kt = {}
 
+def print_single_line(s,l,t):
+    print "print_single_line-",t
+
+def start_context(s,l,t):
+    print "start-context: ",t
+    kt ['context'] ={'name': t[1],'attributes':{} }
+
+def update_attribute(s,l,t):
+    print "update_attribute - ", t
+    kt['context'][t[0]]['attributes'][t[2]]=t[4]
+
 def updateKT(s,location,tokens):
         print "location=",location, "s=",s, "tokens=",tokens
-	kt[tokens[0]]=tokens[2:]
 
 def print_rvalue(s,l,t):
     print "rvalue - t=",t
@@ -25,10 +35,19 @@ def document_from_template(templateTree):
 
 
 # define grammar
-variable = Word(alphas) | Word(alphas)+ "::"+ Word(alphas)
-freeformText = "freeform"+"("+ OneOrMore(Word(alphas))+")"
-rvalue = freeformText | Word(alphas)
-grammar= variable + "::" + Word(alphas) + "=" + rvalue | variable + "=" + rvalue
+startContext          = "start_context" + Word(alphas)
+variable              = Word(alphas) | Word(alphas)+ "::"+ Word(alphas)
+freeformText          = "freeform"+"("+ OneOrMore(Word(alphas))+")"
+rvalue                = freeformText | Word(alphas)
+setAttributeValue     = variable + "::" + Word(alphas) + '=' + rvalue 
+setVariableValue      = variable + '=' + rvalue
+
+singleline            = startContext | setAttributeValue | setVariableValue
+grammar               = singleline  + ";" + Optional(singleline)
+
+setAttributeValue.setParseAction(update_attribute)
+singleline.setParseAction(print_single_line)
+startContext.setParseAction(start_context)
 grammar.setParseAction(updateKT)
 rvalue.setParseAction(print_rvalue)
 
