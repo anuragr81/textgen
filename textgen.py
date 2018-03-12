@@ -11,7 +11,7 @@ logger.setLevel(loglevel)
 
 from pyparsing import Word,alphas,OneOrMore,Optional
 
-kt = {'contexts':{},'globals':{}}
+kt = {'contexts':{},'globals':{},'rvalues':[]}
 
 def print_single_line(s,l,t):
     logger.debug("print_single_line-"+str(t))
@@ -32,8 +32,10 @@ def update_attribute(s,l,t):
 def updateKT(s,location,tokens):
     logger.debug("location="+str(location)+ " s=\""+str(s)+" tokens="+str(tokens))
 
-def print_rvalue(s,l,t):
+def set_rvalue(s,l,t):
     logger.debug("rvalue - t="+str(t))
+    if t[0] not in kt['rvalues']:
+        kt['rvalues'].append(t[0])
 
 """
 relations of a context's attribute are of types : [ property, supertype/subtype, composition/aggregation, containment/ownership ]
@@ -61,12 +63,11 @@ line                  = startContext + ";" | setVariableValue + ";" | setAttribu
 grammar               = OneOrMore(line)
 
 
-
 setAttributeValue.setParseAction(update_attribute)
 setVariableValue.setParseAction(update_variable)
 #line.setParseAction(print_single_line)
 startContext.setParseAction(start_context)
-rvalue.setParseAction(print_rvalue)
+rvalue.setParseAction(set_rvalue)
 
 
 if __name__ == "__main__":
