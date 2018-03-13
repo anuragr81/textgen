@@ -9,7 +9,7 @@ logging.basicConfig(format=FORMAT);
 logger = logging.getLogger(LOGGER_NAME);
 logger.setLevel(loglevel)
 
-from pyparsing import Word,alphas,OneOrMore,Optional,Literal,QuotedString
+from pyparsing import Word,alphanums,OneOrMore,Optional,Literal,QuotedString
 
 
 class UnknownVariableException(Exception):
@@ -70,15 +70,15 @@ def document_from_template(templateTree):
 
 
 # define grammar
-startContext          = "start_context" + Word(alphas)
-variable              = Word(alphas) | Word(alphas)+ "::"+ Word(alphas)
-freeformText          = "freeform"+"("+ OneOrMore(Word(alphas))+")"
-rvalue                = freeformText | Word(alphas)
+startContext          = "start_context" + Word(alphanums)
+variable              = Word(alphanums) | Word(alphanums)+ "::"+ Word(alphanums)
+freeformText          = "freeform"+"("+ OneOrMore(Word(alphanums))+")"
+rvalue                = freeformText | Word(alphanums)
 comparison            = Literal("=") | Literal("<") | Literal(">")
-setAttributeValue     = variable + "::" + Word(alphas) + comparison + rvalue 
+setAttributeValue     = variable + "::" + Word(alphanums) + comparison + rvalue 
 setVariableValue      = variable + comparison + rvalue
-argument              = Word(alphas) + Optional(",")
-funcDef               = Word(alphas) + "(" + OneOrMore(argument) + ")"
+argument              = Word(alphanums) + Optional(",")
+funcDef               = Word(alphanums) + "(" + OneOrMore(argument) + ")"
 comment               = QuotedString('/*', endQuoteChar='*/')
 line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";" | comment
 
