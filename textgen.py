@@ -9,7 +9,7 @@ logging.basicConfig(format=FORMAT);
 logger = logging.getLogger(LOGGER_NAME);
 logger.setLevel(loglevel)
 
-from pyparsing import Word,alphas,OneOrMore,Optional
+from pyparsing import Word,alphas,OneOrMore,Optional,Literal
 
 
 class UnknownVariableException(Exception):
@@ -25,11 +25,11 @@ def start_context(s,l,t):
     kt ['contexts'][t[1]]={'attributes':{}}
 
 def update_variable(s,l,t):
-    logger.debug("update_variable - t="+str(t))
+    logger.debug("update_variable - t="+str(t) + " comparator:'"+str(t[1])+"\'")
     kt['globals'][t[0]]=t[2]
     
 def update_attribute(s,l,t):
-    logger.debug("update_attribute - "+str(t))
+    logger.debug("update_attribute - "+str(t)+ " comparator:'"+str(t[3])+"\'")
     kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
 
 def updateKT(s,location,tokens):
@@ -45,7 +45,6 @@ def set_function(s,l,t):
 	if t[0] not in kt['functions']:
 		kt['functions'].append(t[0])
 	variables      = [t[i] for i in xrange(2,len(t),2)]
-        print "function has variables : ", variables
         attributeNames = reduce(lambda x,y: x+y, [context['attributes'].keys() for name,context in kt['contexts'].items()])
         if any( var not in attributeNames and var not in kt['globals'] for var in variables ):
             raise UnknownVariableException()
@@ -72,8 +71,9 @@ startContext          = "start_context" + Word(alphas)
 variable              = Word(alphas) | Word(alphas)+ "::"+ Word(alphas)
 freeformText          = "freeform"+"("+ OneOrMore(Word(alphas))+")"
 rvalue                = freeformText | Word(alphas)
-setAttributeValue     = variable + "::" + Word(alphas) + '=' + rvalue 
-setVariableValue      = variable + '=' + rvalue
+comparison            = Literal("=") | Literal("<") | Literal(">")
+setAttributeValue     = variable + "::" + Word(alphas) + comparison + rvalue 
+setVariableValue      = variable + comparison + rvalue
 argument              = Word(alphas) + Optional(",")
 funcDef               = Word(alphas) + "(" + OneOrMore(argument) + ")"
 line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";"
