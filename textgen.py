@@ -9,7 +9,7 @@ logging.basicConfig(format=FORMAT);
 logger = logging.getLogger(LOGGER_NAME);
 logger.setLevel(loglevel)
 
-from pyparsing import Word,alphas,OneOrMore,Optional,Literal
+from pyparsing import Word,alphas,OneOrMore,Optional,Literal,QuotedString
 
 
 class UnknownVariableException(Exception):
@@ -50,6 +50,9 @@ def set_function(s,l,t):
             raise UnknownVariableException()
 	
 
+def print_comment(s,l,t):
+    logger.debug("print_comment - "+str(t))
+
 
 
 """
@@ -76,7 +79,8 @@ setAttributeValue     = variable + "::" + Word(alphas) + comparison + rvalue
 setVariableValue      = variable + comparison + rvalue
 argument              = Word(alphas) + Optional(",")
 funcDef               = Word(alphas) + "(" + OneOrMore(argument) + ")"
-line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";"
+comment               = QuotedString('/*', endQuoteChar='*/')
+line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";" | comment
 
 grammar               = OneOrMore(line)
 
@@ -87,6 +91,7 @@ setVariableValue.setParseAction(update_variable)
 startContext.setParseAction(start_context)
 rvalue.setParseAction(set_rvalue)
 funcDef.setParseAction(set_function)
+comment.setParseAction(print_comment)
 
 if __name__ == "__main__":
     # input string
