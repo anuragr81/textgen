@@ -11,6 +11,10 @@ logger.setLevel(loglevel)
 
 from pyparsing import Word,alphas,OneOrMore,Optional
 
+
+class UnknownVariableException(Exception):
+    pass
+
 kt = {'contexts':{},'globals':{},'rvalues':[],'functions':[]}
 
 def print_single_line(s,l,t):
@@ -25,7 +29,7 @@ def update_variable(s,l,t):
     kt['globals'][t[0]]=t[2]
     
 def update_attribute(s,l,t):
-    logger.debug("update_attribute - "+str(t) +" kt="+str(kt))
+    logger.debug("update_attribute - "+str(t))
     kt['contexts'][t[0]]['attributes'][t[2]]=t[4]
 
 def updateKT(s,location,tokens):
@@ -40,7 +44,11 @@ def set_function(s,l,t):
 	logger.debug("set_function - t"+str(t))
 	if t[0] not in kt['functions']:
 		kt['functions'].append(t[0])
-	variables = [t[i] for i in xrange(2,len(t),2)]
+	variables      = [t[i] for i in xrange(2,len(t),2)]
+        print "function has variables : ", variables
+        attributeNames = reduce(lambda x,y: x+y, [context['attributes'].keys() for name,context in kt['contexts'].items()])
+        if any( var not in attributeNames and var not in kt['globals'] for var in variables ):
+            raise UnknownVariableException()
 	
 
 
