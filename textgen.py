@@ -1,5 +1,7 @@
 import sys
 import logging
+import argparse
+from exceptions import RuntimeError
 
 import dsl
 
@@ -29,14 +31,28 @@ def document_from_template(templateTree):
 
 if __name__ == "__main__":
     # input string
-    inputString = sys.argv[1]
+    parser     = argparse.ArgumentParser()
+    parser.add_argument("-i","--input-file", help="read input file" , action="store")
+    parser.add_argument("-s","--string", help="read string" , action="store")
+    parsedArgs = parser.parse_args()
+    if parsedArgs.input_file is None and parsedArgs.string is None:
+        raise RuntimeError("Must have either string or input-file populated")
+
+    if parsedArgs.input_file is not None and parsedArgs.string is not None:
+        raise RuntimeError("Cannot have both string or input-file populated")
+
+    if parsedArgs.input_file is not None:
+        for s in open(parsedArgs.input_file).readlines():
+            kt = dsl.parse_knowledge_tree(s)
+    if parsedArgs.string is not None:
+        kt = dsl.parse_knowledge_tree(parsedArgs.string)
+        
+    print "KT=",kt
     
     # parse input string
-    kt = dsl.parse_knowledge_tree(inputString)
-    print "inputString=",inputString, " KT=",kt
+    #kt = dsl.parse_knowledge_tree(inputString)
+    #print "inputString=",inputString, " KT=",kt
 
-else:
-    print "__name__=",__name__
     
     
     
