@@ -1,2 +1,4 @@
-Defining with two atoms is difficult. What I had been thinking was to define basic operations. But adding more basic operations would add more complexity to definitions. Defining more atoms is far more manageable than definite more operations.
-I think mathematical operations and logical operations are sufficient. Mathematics shows that addition alone is sufficient. and logic shows that and + not is sufficient for all logic. Still +,-,/,* and AND,OR,NOT are defined for convenience.
+TODO:
+
+1. Introduce the freeform percentage threshold criteria - disallowing a knowledge tree if the percentage of free form content is more than 20%.
+2. Devise a way to specify language translation of every function (and its operands) along with cardinality of operands for assignment.
