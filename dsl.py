@@ -45,6 +45,11 @@ def start_context(s,l,t):
 def update_variable(s,l,t):
     logger.debug("update_variable - t="+str(t) + " comparator:'"+str(t[1])+"\'")
     kt['globals'][t[0]]=t[2]
+
+def update_variable_from_attr(s,l,t):
+    logger.debug("update_variable_from_attr - t="+str(t) + " comparator:'"+str(t[1])+"\'")
+    contextAndAttr      = reduce(lambda x,y:x+y,t[2:]).split("::")
+    kt['globals'][t[0]] = {'context':contextAndAttr[0],'attr':contextAndAttr[1]}
     
 def update_attribute(s,l,t):
     logger.debug("update_attribute - "+str(t)+ " comparator:'"+str(t[3])+"\'")
@@ -53,11 +58,11 @@ def update_attribute(s,l,t):
 def updateKT(s,location,tokens):
     logger.debug("location="+str(location)+ " s=\""+str(s)+" tokens="+str(tokens))
 
-def set_rvalue(s,l,t):
-    logger.debug("rvalue - t="+str(t))
-    attributeNames = reduce(lambda x,y: x+y, [context['attributes'].keys() for name,context in kt['contexts'].items()],[])
-    if t[0] not in attributeNames and t[0] not in kt['globals'] and t[0] not in kt['rvalues']:
-        kt['rvalues'].append(t[0])
+#def set_rvalue(s,l,t):
+    #logger.debug("rvalue - t="+str(t))
+    #attributeNames = reduce(lambda x,y: x+y, [context['attributes'].keys() for name,context in kt['contexts'].items()],[])
+    #if t[0] not in attributeNames and t[0] not in kt['globals'] and t[0] not in kt['rvalues']:
+        #kt['rvalues'].append(t[0])
 
 def set_function(s,l,t):
 	logger.debug("set_function - t"+str(t))
@@ -81,17 +86,18 @@ def get_freeform(s,l,t):
 
 # define grammar
 startContext          = "start_context" + Word(alphanums)
-variable              = Word(alphanums) | Word(alphanums)+ "::"+ Word(alphanums)
+variable              = Word(alphanums)
+attribute             = Word(alphanums)+ "::"+ Word(alphanums)
 freeformText          = "freeform"+"("+ OneOrMore(Word(alphanums))+")"
-rvalue                = freeformText | variable
 comparison            = Literal("=") | Literal("<") | Literal(">")
-setAttributeValue     = variable + "::" + Word(alphanums) + comparison + rvalue 
-setVariableValue      = variable + comparison + rvalue
+setAttributeValue     = attribute + comparison + variable | attribute + Literal("=") + freeformText
+setVariableFromVar    = variable + comparison + variable | variable + Literal("=") + freeformText
+setVariableFromAttr   = variable + comparison + attribute 
 argument              = Word(alphanums) + Optional(",")
 funcDef               = Word(alphanums) + "(" + OneOrMore(argument) + ")"
 comment               = QuotedString('/*', endQuoteChar='*/')
-line                  = startContext + ";" | setVariableValue + ";" | setAttributeValue + ";" | funcDef + ";" | comment
 
+line                  = startContext + ";" | setAttributeValue + ";"  + setVariableFromAttr + ";" | setVariableFromVar + ";" | funcDef + ";" | comment
 # grammar to be exported
 grammar               = OneOrMore(line)
 
@@ -105,9 +111,9 @@ def parse_knowledge_tree(s):
 
 #parse actions
 setAttributeValue.setParseAction(update_attribute)
-setVariableValue.setParseAction(update_variable)
+setVariableFromVar.setParseAction(update_variable)
+setVariableFromAttr.setParseAction(update_variable_from_attr)
 startContext.setParseAction(start_context)
-rvalue.setParseAction(set_rvalue)
 funcDef.setParseAction(set_function)
 comment.setParseAction(print_comment)
 freeformText.setParseAction(get_freeform)
