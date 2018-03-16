@@ -71,6 +71,12 @@ def set_function(s,l,t):
 def print_comment(s,l,t):
     logger.debug("print_comment - "+str(t))
 
+def set_freeform(s,l,t):
+    logger.debug("set_freeform - "+str(t[1:-1]))
+    #kt['globals'][t[0]]=
+    return reduce(lambda x,y: x + " " + y , t[1:-1])
+
+
 
 
 # define grammar
@@ -104,6 +110,7 @@ startContext.setParseAction(start_context)
 rvalue.setParseAction(set_rvalue)
 funcDef.setParseAction(set_function)
 comment.setParseAction(print_comment)
+freeformText.setParseAction(set_freeform)
 
 
 
