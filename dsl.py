@@ -55,7 +55,8 @@ def updateKT(s,location,tokens):
 
 def set_rvalue(s,l,t):
     logger.debug("rvalue - t="+str(t))
-    if t[0] not in kt['rvalues']:
+    attributeNames = reduce(lambda x,y: x+y, [context['attributes'].keys() for name,context in kt['contexts'].items()],[])
+    if t[0] not in attributeNames and t[0] not in kt['globals'] and t[0] not in kt['rvalues']:
         kt['rvalues'].append(t[0])
 
 def set_function(s,l,t):
@@ -71,9 +72,8 @@ def set_function(s,l,t):
 def print_comment(s,l,t):
     logger.debug("print_comment - "+str(t))
 
-def set_freeform(s,l,t):
-    logger.debug("set_freeform - "+str(t[1:-1]))
-    #kt['globals'][t[0]]=
+def get_freeform(s,l,t):
+    logger.debug("get_freeform - "+str(t[1:-1]))
     return reduce(lambda x,y: x + " " + y , t[1:-1])
 
 
@@ -83,7 +83,7 @@ def set_freeform(s,l,t):
 startContext          = "start_context" + Word(alphanums)
 variable              = Word(alphanums) | Word(alphanums)+ "::"+ Word(alphanums)
 freeformText          = "freeform"+"("+ OneOrMore(Word(alphanums))+")"
-rvalue                = freeformText | Word(alphanums)
+rvalue                = freeformText | variable
 comparison            = Literal("=") | Literal("<") | Literal(">")
 setAttributeValue     = variable + "::" + Word(alphanums) + comparison + rvalue 
 setVariableValue      = variable + comparison + rvalue
@@ -110,7 +110,7 @@ startContext.setParseAction(start_context)
 rvalue.setParseAction(set_rvalue)
 funcDef.setParseAction(set_function)
 comment.setParseAction(print_comment)
-freeformText.setParseAction(set_freeform)
+freeformText.setParseAction(get_freeform)
 
 
 

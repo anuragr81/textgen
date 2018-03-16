@@ -14,18 +14,26 @@ logger = logging.getLogger(LOGGER_NAME);
 logger.setLevel(loglevel)
 
 
-"""
-relations of a context's attribute are of types : [ property, supertype/subtype, composition/aggregation, containment/ownership ]
-"""
-def template_tree (contexts):
-	templateTree = {contexts['company']: {'relation':'property', 'nodes':[contexts['company']['name'] ]},
-	              }
+mapEnglish = { 
+     'comparators' : {
+        ('#have','1') : "has",
+        ('#have','n'):'have',
+        ('=','1') : 'is',
+        ('=','n') : 'are',
+        ('>','1') : 'greater than',
+        ('>','n') : 'greater than',
+        }, 
 
-"""
-generates the english text from the tree
-"""
-def document_from_template(templateTree):
-	return parseString(templateTree) # this would generate the english text
+     }
+
+def document_from_doctemplate(kt,mapEnglish):
+    """ generates the english text """
+    # uses the mapping of functions and comaparators to a natural language
+    for contextName,context in kt['contexts'].items():
+        print ("context name="+contextName)
+        print (context)
+        
+
 
 
 
@@ -46,12 +54,11 @@ if __name__ == "__main__":
             kt = dsl.parse_knowledge_tree(s)
     if parsedArgs.string is not None:
         kt = dsl.parse_knowledge_tree(parsedArgs.string)
-        
+    document_from_doctemplate(kt,mapEnglish)
     print "KT=",kt
-    
-    # parse input string
-    #kt = dsl.parse_knowledge_tree(inputString)
-    #print "inputString=",inputString, " KT=",kt
+        
+
+
 
     
     
