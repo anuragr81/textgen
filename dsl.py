@@ -90,8 +90,8 @@ variable              = Word(alphanums)
 attribute             = Word(alphanums)+ "::"+ Word(alphanums)
 freeformText          = "freeform"+"("+ OneOrMore(Word(alphanums))+")"
 comparison            = Literal("=") | Literal("<") | Literal(">")
-setAttributeValue     = attribute + comparison + variable | attribute + Literal("=") + freeformText
-setVariableFromVar    = variable + comparison + variable | variable + Literal("=") + freeformText
+setAttributeValue     = attribute + Literal("=") + freeformText | attribute + comparison + variable 
+setVariableFromVar    = variable + Literal("=") + freeformText | variable + comparison + variable 
 setVariableFromAttr   = variable + comparison + attribute 
 argument              = Word(alphanums) + Optional(",")
 funcDef               = Word(alphanums) + "(" + OneOrMore(argument) + ")"

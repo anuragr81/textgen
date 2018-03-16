@@ -53,6 +53,7 @@ if __name__ == "__main__":
         for s in open(parsedArgs.input_file).readlines():
             kt = dsl.parse_knowledge_tree(s)
     if parsedArgs.string is not None:
+
         kt = dsl.parse_knowledge_tree(parsedArgs.string)
     document_from_doctemplate(kt,mapEnglish)
     print "KT=",kt
